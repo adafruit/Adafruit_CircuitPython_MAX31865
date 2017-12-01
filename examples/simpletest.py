@@ -2,6 +2,7 @@
 # Will print the temperature every second.
 import board
 import busio
+import digitalio
 import time
 
 import adafruit_max31865
@@ -9,7 +10,7 @@ import adafruit_max31865
 
 # Initialize SPI bus and sensor.
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-cs =  board.D5  # Chip select of the MAX31865 board.
+cs =  digitalio.DigitalInOut(board.D5)  # Chip select of the MAX31865 board.
 sensor = adafruit_max31865.MAX31865(spi, cs)
 # Note you can optionally provide the thermocouple RTD nominal, the reference
 # resistance, and the number of wires for the sensor (2 the default, 3, or 4)
@@ -21,6 +22,6 @@ while True:
     # Read temperature.
     temp = sensor.temperature
     # Print the value.
-    print('Temperature: {0.3f}C'.format(temp))
+    print('Temperature: {0:0.3f}C'.format(temp))
     # Delay for a second.
     time.sleep(1.0)

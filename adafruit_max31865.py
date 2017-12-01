@@ -71,10 +71,10 @@ class MAX31865:
 
     def __init__(self, spi, cs, rtd_nominal=100, ref_resistor=430.0, wires=2):
         self.rtd_nominal = rtd_nominal
-        self.red_resistor = ref_resistor
+        self.ref_resistor = ref_resistor
         self._device = spi_device.SPIDevice(spi, cs)
         # Set wire config register based on the number of wires specified.
-        if wires not in _WIRE_MAP:
+        if wires not in (2, 3, 4):
             raise ValueError('Wires must be a value of 2, 3, or 4!')
         t = self._read_u8(_MAX31865_CONFIG_REG)
         if wires == 3:
@@ -91,7 +91,7 @@ class MAX31865:
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as device:
             device.configure(baudrate=500000, phase=1, polarity=0)
-            _BUFFER[0] = address & 0x7F
+            self._BUFFER[0] = address & 0x7F
             device.write(self._BUFFER, end=1)
             device.readinto(self._BUFFER, end=1)
         return self._BUFFER[0]
@@ -111,7 +111,7 @@ class MAX31865:
             device.configure(baudrate=500000, phase=1, polarity=0)
             self._BUFFER[0] = (address & 0xFF) | 0x80
             self._BUFFER[1] = val & 0xFF
-            self._device.write(self._BUFFER, end=2)
+            device.write(self._BUFFER, end=2)
 
     @property
     def bias(self):
@@ -124,7 +124,7 @@ class MAX31865:
         if val:
             t |= _MAX31865_CONFIG_BIAS  # Enable bias.
         else:
-            t &= ~MAX31865_CONFIG_BIAS  # Disable bias.
+            t &= ~_MAX31865_CONFIG_BIAS  # Disable bias.
         self._write_u8(_MAX31865_CONFIG_REG, t)
 
     @property
