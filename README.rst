@@ -10,7 +10,7 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
-TODO
+CircuitPython module for the MAX31865 thermocouple amplifier.
 
 Dependencies
 =============
@@ -26,7 +26,7 @@ This is easily achieved by downloading
 Usage Example
 =============
 
-TODO
+See examples/simpletest.py for a demo of the usage.
 
 Contributing
 ============
