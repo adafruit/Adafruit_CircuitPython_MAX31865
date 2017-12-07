@@ -72,7 +72,8 @@ class MAX31865:
     def __init__(self, spi, cs, rtd_nominal=100, ref_resistor=430.0, wires=2):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
-        self._device = spi_device.SPIDevice(spi, cs)
+        self._device = spi_device.SPIDevice(spi, cs, baudrate=500000,
+                                            polarity=0, phase=1)
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
             raise ValueError('Wires must be a value of 2, 3, or 4!')
@@ -90,7 +91,6 @@ class MAX31865:
     def _read_u8(self, address):
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as device:
-            device.configure(baudrate=500000, phase=1, polarity=0)
             self._BUFFER[0] = address & 0x7F
             device.write(self._BUFFER, end=1)
             device.readinto(self._BUFFER, end=1)
@@ -99,7 +99,6 @@ class MAX31865:
     def _read_u16(self, address):
         # Read a 16-bit BE unsigned value from the specified 8-bit address.
         with self._device as device:
-            device.configure(baudrate=500000, phase=1, polarity=0)
             self._BUFFER[0] = address & 0x7F
             device.write(self._BUFFER, end=1)
             device.readinto(self._BUFFER, end=2)
@@ -108,8 +107,7 @@ class MAX31865:
     def _write_u8(self, address, val):
         # Write an 8-bit unsigned value to the specified 8-bit address.
         with self._device as device:
-            device.configure(baudrate=500000, phase=1, polarity=0)
-            self._BUFFER[0] = (address & 0xFF) | 0x80
+            self._BUFFER[0] = (address | 0x80) & 0xFF
             self._BUFFER[1] = val & 0xFF
             device.write(self._BUFFER, end=2)
 
@@ -195,13 +193,13 @@ class MAX31865:
         Celsius.
         """
         Rt = self.read_rtd()
-        Rt //= 32768
+        Rt /= 32768
         Rt *= self.ref_resistor
         Z1 = -_RTD_A
-        Z2 = _RTD_A * _RTD_A - (4 * _RTD_B);
-        Z3 = (4 * _RTD_B) / self.rtd_nominal;
+        Z2 = _RTD_A * _RTD_A - (4 * _RTD_B)
+        Z3 = (4 * _RTD_B) / self.rtd_nominal
         Z4 = 2 * _RTD_B
-        temp = Z2 + (Z3 * Rt);
+        temp = Z2 + (Z3 * Rt)
         temp = (math.sqrt(temp) + Z1) / Z4
         if temp >= 0:
             return temp
