@@ -32,44 +32,45 @@ import math
 import time
 
 import adafruit_bus_device.spi_device as spi_device
-
+from micropython import const
 
 # Register and other constant values:
-_MAX31865_CONFIG_REG            = const(0x00)
-_MAX31865_CONFIG_BIAS           = const(0x80)
-_MAX31865_CONFIG_MODEAUTO       = const(0x40)
-_MAX31865_CONFIG_MODEOFF        = const(0x00)
-_MAX31865_CONFIG_1SHOT          = const(0x20)
-_MAX31865_CONFIG_3WIRE          = const(0x10)
-_MAX31865_CONFIG_24WIRE         = const(0x00)
-_MAX31865_CONFIG_FAULTSTAT      = const(0x02)
-_MAX31865_CONFIG_FILT50HZ       = const(0x01)
-_MAX31865_CONFIG_FILT60HZ       = const(0x00)
-_MAX31865_RTDMSB_REG            = const(0x01)
-_MAX31865_RTDLSB_REG            = const(0x02)
-_MAX31865_HFAULTMSB_REG         = const(0x03)
-_MAX31865_HFAULTLSB_REG         = const(0x04)
-_MAX31865_LFAULTMSB_REG         = const(0x05)
-_MAX31865_LFAULTLSB_REG         = const(0x06)
-_MAX31865_FAULTSTAT_REG         = const(0x07)
-_MAX31865_FAULT_HIGHTHRESH      = const(0x80)
-_MAX31865_FAULT_LOWTHRESH       = const(0x40)
-_MAX31865_FAULT_REFINLOW        = const(0x20)
-_MAX31865_FAULT_REFINHIGH       = const(0x10)
-_MAX31865_FAULT_RTDINLOW        = const(0x08)
-_MAX31865_FAULT_OVUV            = const(0x04)
-_RTD_A  = 3.9083e-3
-_RTD_B  = -5.775e-7
+_MAX31865_CONFIG_REG = const(0x00)
+_MAX31865_CONFIG_BIAS = const(0x80)
+_MAX31865_CONFIG_MODEAUTO = const(0x40)
+_MAX31865_CONFIG_MODEOFF = const(0x00)
+_MAX31865_CONFIG_1SHOT = const(0x20)
+_MAX31865_CONFIG_3WIRE = const(0x10)
+_MAX31865_CONFIG_24WIRE = const(0x00)
+_MAX31865_CONFIG_FAULTSTAT = const(0x02)
+_MAX31865_CONFIG_FILT50HZ = const(0x01)
+_MAX31865_CONFIG_FILT60HZ = const(0x00)
+_MAX31865_RTDMSB_REG = const(0x01)
+_MAX31865_RTDLSB_REG = const(0x02)
+_MAX31865_HFAULTMSB_REG = const(0x03)
+_MAX31865_HFAULTLSB_REG = const(0x04)
+_MAX31865_LFAULTMSB_REG = const(0x05)
+_MAX31865_LFAULTLSB_REG = const(0x06)
+_MAX31865_FAULTSTAT_REG = const(0x07)
+_MAX31865_FAULT_HIGHTHRESH = const(0x80)
+_MAX31865_FAULT_LOWTHRESH = const(0x40)
+_MAX31865_FAULT_REFINLOW = const(0x20)
+_MAX31865_FAULT_REFINHIGH = const(0x10)
+_MAX31865_FAULT_RTDINLOW = const(0x08)
+_MAX31865_FAULT_OVUV = const(0x04)
+_RTD_A = 3.9083e-3
+_RTD_B = -5.775e-7
 
 
 class MAX31865:
+    """Driver for the MAX31865 thermocouple amplifier."""
 
     # Class-level buffer for reading and writing data with the sensor.
     # This reduces memory allocations but means the code is not re-entrant or
     # thread safe!
     _BUFFER = bytearray(3)
 
-    def __init__(self, spi, cs, rtd_nominal=100, ref_resistor=430.0, wires=2):
+    def __init__(self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0, wires=2):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
         self._device = spi_device.SPIDevice(spi, cs, baudrate=500000,
@@ -77,13 +78,13 @@ class MAX31865:
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
             raise ValueError('Wires must be a value of 2, 3, or 4!')
-        t = self._read_u8(_MAX31865_CONFIG_REG)
+        config = self._read_u8(_MAX31865_CONFIG_REG)
         if wires == 3:
-            t |= _MAX31865_CONFIG_3WIRE
+            config |= _MAX31865_CONFIG_3WIRE
         else:
             # 2 or 4 wire
-            t &= ~_MAX31865_CONFIG_3WIRE
-        self._write_u8(_MAX31865_CONFIG_REG, t)
+            config &= ~_MAX31865_CONFIG_3WIRE
+        self._write_u8(_MAX31865_CONFIG_REG, config)
         # Default to no bias and no auto conversion.
         self.bias = False
         self.auto_convert = False
@@ -113,74 +114,71 @@ class MAX31865:
 
     @property
     def bias(self):
-        """Get and set the boolean state of the sensor's bias (True/False)."""
+        """True when the sensor's bias voltage is on"""
         return bool(self._read_u8(_MAX31865_CONFIG_REG) & _MAX31865_CONFIG_BIAS)
 
     @bias.setter
     def bias(self, val):
-        t = self._read_u8(_MAX31865_CONFIG_REG)
+        config = self._read_u8(_MAX31865_CONFIG_REG)
         if val:
-            t |= _MAX31865_CONFIG_BIAS  # Enable bias.
+            config |= _MAX31865_CONFIG_BIAS  # Enable bias.
         else:
-            t &= ~_MAX31865_CONFIG_BIAS  # Disable bias.
-        self._write_u8(_MAX31865_CONFIG_REG, t)
+            config &= ~_MAX31865_CONFIG_BIAS  # Disable bias.
+        self._write_u8(_MAX31865_CONFIG_REG, config)
 
     @property
     def auto_convert(self):
-        """Get and set the boolean state of the sensor's automatic conversion
-        mode (True/False).
-        """
+        """True when the sensor automatically does conversions."""
         return bool(self._read_u8(_MAX31865_CONFIG_REG) & _MAX31865_CONFIG_MODEAUTO)
 
     @auto_convert.setter
     def auto_convert(self, val):
-        t = self._read_u8(_MAX31865_CONFIG_REG)
+        config = self._read_u8(_MAX31865_CONFIG_REG)
         if val:
-            t |= _MAX31865_CONFIG_MODEAUTO   # Enable auto convert.
+            config |= _MAX31865_CONFIG_MODEAUTO   # Enable auto convert.
         else:
-            t &= ~_MAX31865_CONFIG_MODEAUTO  # Disable auto convert.
-        self._write_u8(_MAX31865_CONFIG_REG, t)
+            config &= ~_MAX31865_CONFIG_MODEAUTO  # Disable auto convert.
+        self._write_u8(_MAX31865_CONFIG_REG, config)
 
     @property
     def fault(self):
-        """Get the fault state of the sensor.  Use the clear_faults function
-        to clear the fault state.  Returns a 6-tuple of boolean values which
-        indicate if any faults are present:
-          - HIGHTHRESH
-          - LOWTHRESH
-          - REFINLOW
-          - REFINHIGH
-          - RTDINLOW
-          - OVUV
+        """The fault state of the sensor.  Use `clear_faults` to clear the fault state.  Returns a
+           6-tuple of boolean values which indicate if any faults are present:
+            - HIGHTHRESH
+            - LOWTHRESH
+            - REFINLOW
+            - REFINHIGH
+            - RTDINLOW
+            - OVUV
         """
         faults = self._read_u8(_MAX31865_FAULTSTAT_REG)
         highthresh = bool(faults & _MAX31865_FAULT_HIGHTHRESH)
-        lowthresh  = bool(faults & _MAX31865_FAULT_LOWTHRESH)
-        refinlow   = bool(faults & _MAX31865_FAULT_REFINLOW)
-        refinhigh  = bool(faults & _MAX31865_FAULT_REFINHIGH)
-        rtdinlow   = bool(faults & _MAX31865_FAULT_RTDINLOW)
-        ovuv       = bool(faults & _MAX31865_FAULT_OVUV)
+        lowthresh = bool(faults & _MAX31865_FAULT_LOWTHRESH)
+        refinlow = bool(faults & _MAX31865_FAULT_REFINLOW)
+        refinhigh = bool(faults & _MAX31865_FAULT_REFINHIGH)
+        rtdinlow = bool(faults & _MAX31865_FAULT_RTDINLOW)
+        ovuv = bool(faults & _MAX31865_FAULT_OVUV)
         return (highthresh, lowthresh, refinlow, refinhigh, rtdinlow, ovuv)
 
     def clear_faults(self):
         """Clear any fault state previously detected by the sensor."""
-        t = self._read_u8(_MAX31865_CONFIG_REG)
-        t &= ~0x2C
-        t |= _MAX31865_CONFIG_FAULTSTAT
-        self._write_u8(_MAX31865_CONFIG_REG, t)
+        config = self._read_u8(_MAX31865_CONFIG_REG)
+        config &= ~0x2C
+        config |= _MAX31865_CONFIG_FAULTSTAT
+        self._write_u8(_MAX31865_CONFIG_REG, config)
 
     def read_rtd(self):
         """Perform a raw reading of the thermocouple and return its 15-bit
         value.  You'll need to manually convert this to temperature using the
-        nominal value of the RTD and some math.  If you just want temperature
-        use the temperature property instead.
+        nominal value of the resistance-to-digital conversion and some math.  If you just want
+        temperature use the temperature property instead.
         """
         self.clear_faults()
         self.bias = True
         time.sleep(0.01)
-        t = self._read_u8(_MAX31865_CONFIG_REG)
-        t |= _MAX31865_CONFIG_1SHOT
-        self._write_u8(_MAX31865_CONFIG_REG, t)
+        config = self._read_u8(_MAX31865_CONFIG_REG)
+        config |= _MAX31865_CONFIG_1SHOT
+        self._write_u8(_MAX31865_CONFIG_REG, config)
         time.sleep(0.065)
         rtd = self._read_u16(_MAX31865_RTDMSB_REG)
         # Remove fault bit.
@@ -189,29 +187,32 @@ class MAX31865:
 
     @property
     def temperature(self):
-        """Read the temperature of the sensor and return its value in degrees
-        Celsius.
-        """
-        Rt = self.read_rtd()
-        Rt /= 32768
-        Rt *= self.ref_resistor
+        """The temperature of the sensor in degrees Celsius."""
+        raw_reading = self.read_rtd()
+        raw_reading /= 32768
+        raw_reading *= self.ref_resistor
+
+        # This math originates from:
+        # http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
+        # To match the naming from the app note we tell lint to ignore the Z1-4 naming.
+        # pylint: disable=invalid-name
         Z1 = -_RTD_A
         Z2 = _RTD_A * _RTD_A - (4 * _RTD_B)
         Z3 = (4 * _RTD_B) / self.rtd_nominal
         Z4 = 2 * _RTD_B
-        temp = Z2 + (Z3 * Rt)
+        temp = Z2 + (Z3 * raw_reading)
         temp = (math.sqrt(temp) + Z1) / Z4
         if temp >= 0:
             return temp
-        rpoly = Rt
+        rpoly = raw_reading
         temp = -242.02
         temp += 2.2228 * rpoly
-        rpoly *= Rt  # square
+        rpoly *= raw_reading  # square
         temp += 2.5859e-3 * rpoly
-        rpoly *= Rt # ^3
+        rpoly *= raw_reading # ^3
         temp -= 4.8260e-6 * rpoly
-        rpoly *= Rt # ^4
+        rpoly *= raw_reading # ^4
         temp -= 2.8183e-8 * rpoly
-        rpoly *= Rt # ^5
+        rpoly *= raw_reading # ^5
         temp += 1.5243e-10 * rpoly
         return temp
