@@ -195,18 +195,24 @@ class MAX31865:
         return rtd
 
     @property
+    def resistance(self):
+        """Read the resistance of the RTD and return its value in Ohms."""
+        resistance = self.read_rtd()
+        resistance /= 32768
+        resistance *= self.ref_resistor
+        return resistance
+
+    @property
     def temperature(self):
         """Read the temperature of the sensor and return its value in degrees
         Celsius.
         """
-        raw_reading = self.read_rtd()
-        raw_reading /= 32768
-        raw_reading *= self.ref_resistor
-
         # This math originates from:
         # http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
-        # To match the naming from the app note we tell lint to ignore the Z1-4 naming.
+        # To match the naming from the app note we tell lint to ignore the Z1-4
+        # naming.
         # pylint: disable=invalid-name
+        raw_reading = self.resistance
         Z1 = -_RTD_A
         Z2 = _RTD_A * _RTD_A - (4 * _RTD_B)
         Z3 = (4 * _RTD_B) / self.rtd_nominal
@@ -220,10 +226,10 @@ class MAX31865:
         temp += 2.2228 * rpoly
         rpoly *= raw_reading  # square
         temp += 2.5859e-3 * rpoly
-        rpoly *= raw_reading # ^3
+        rpoly *= raw_reading  # ^3
         temp -= 4.8260e-6 * rpoly
-        rpoly *= raw_reading # ^4
+        rpoly *= raw_reading  # ^4
         temp -= 2.8183e-8 * rpoly
-        rpoly *= raw_reading # ^5
+        rpoly *= raw_reading  # ^5
         temp += 1.5243e-10 * rpoly
         return temp
