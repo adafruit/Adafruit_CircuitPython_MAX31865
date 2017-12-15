@@ -118,7 +118,7 @@ class MAX31865:
 
     @property
     def bias(self):
-        """True when the sensor's bias voltage is on"""
+        """Get and set the boolean state of the sensor's bias (True/False)."""
         return bool(self._read_u8(_MAX31865_CONFIG_REG) & _MAX31865_CONFIG_BIAS)
 
     @bias.setter
@@ -132,7 +132,9 @@ class MAX31865:
 
     @property
     def auto_convert(self):
-        """True when the sensor automatically does conversions."""
+        """Get and set the boolean state of the sensor's automatic conversion
+        mode (True/False).
+        """
         return bool(self._read_u8(_MAX31865_CONFIG_REG) & _MAX31865_CONFIG_MODEAUTO)
 
     @auto_convert.setter
@@ -146,8 +148,9 @@ class MAX31865:
 
     @property
     def fault(self):
-        """The fault state of the sensor.  Use `clear_faults` to clear the fault state.  Returns a
-           6-tuple of boolean values which indicate if any faults are present:
+        """Get the fault state of the sensor.  Use `clear_faults` to clear the
+        fault state.  Returns a 6-tuple of boolean values which indicate if any
+        faults are present:
             - HIGHTHRESH
             - LOWTHRESH
             - REFINLOW
@@ -193,7 +196,9 @@ class MAX31865:
 
     @property
     def temperature(self):
-        """The temperature of the sensor in degrees Celsius."""
+        """Read the temperature of the sensor and return its value in degrees
+        Celsius.
+        """
         raw_reading = self.read_rtd()
         raw_reading /= 32768
         raw_reading *= self.ref_resistor
