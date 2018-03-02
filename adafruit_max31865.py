@@ -171,12 +171,13 @@ class MAX31865:
         """The fault state of the sensor.  Use ``clear_faults()`` to clear the
         fault state.  Returns a 6-tuple of boolean values which indicate if any
         faults are present:
-            - HIGHTHRESH
-            - LOWTHRESH
-            - REFINLOW
-            - REFINHIGH
-            - RTDINLOW
-            - OVUV
+
+        - HIGHTHRESH
+        - LOWTHRESH
+        - REFINLOW
+        - REFINHIGH
+        - RTDINLOW
+        - OVUV
         """
         faults = self._read_u8(_MAX31865_FAULTSTAT_REG)
         #pylint: disable=bad-whitespace
