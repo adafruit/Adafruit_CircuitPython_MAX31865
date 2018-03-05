@@ -27,6 +27,26 @@ CircuitPython module for the MAX31865 platinum RTD temperature sensor.  See
 examples/simpletest.py for an example of the usage.
 
 * Author(s): Tony DiCola
+
+Implementation Notes
+--------------------
+
+**Hardware:**
+
+* Adafruit `Universal Thermocouple Amplifier MAX31856 Breakout
+  <https://www.adafruit.com/product/3263>`_ (Product ID: 3263)
+
+* Adafruit `PT100 RTD Temperature Sensor Amplifier - MAX31865
+  <https://www.adafruit.com/product/3328>`_ (Product ID: 3328)
+
+* Adafruit `PT1000 RTD Temperature Sensor Amplifier - MAX31865
+  <https://www.adafruit.com/product/3648>`_ (Product ID: 3648)
+
+**Software and Dependencies:**
+
+* Adafruit CircuitPython firmware for the ESP8622 and M0-based boards:
+  https://github.com/adafruit/circuitpython/releases
+* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 import math
 import time
@@ -118,7 +138,7 @@ class MAX31865:
 
     @property
     def bias(self):
-        """Get and set the boolean state of the sensor's bias (True/False)."""
+        """The state of the sensor's bias (True/False)."""
         return bool(self._read_u8(_MAX31865_CONFIG_REG) & _MAX31865_CONFIG_BIAS)
 
     @bias.setter
@@ -132,7 +152,7 @@ class MAX31865:
 
     @property
     def auto_convert(self):
-        """Get and set the boolean state of the sensor's automatic conversion
+        """The state of the sensor's automatic conversion
         mode (True/False).
         """
         return bool(self._read_u8(_MAX31865_CONFIG_REG) & _MAX31865_CONFIG_MODEAUTO)
@@ -148,15 +168,16 @@ class MAX31865:
 
     @property
     def fault(self):
-        """Get the fault state of the sensor.  Use `clear_faults` to clear the
+        """The fault state of the sensor.  Use ``clear_faults()`` to clear the
         fault state.  Returns a 6-tuple of boolean values which indicate if any
         faults are present:
-            - HIGHTHRESH
-            - LOWTHRESH
-            - REFINLOW
-            - REFINHIGH
-            - RTDINLOW
-            - OVUV
+
+        - HIGHTHRESH
+        - LOWTHRESH
+        - REFINLOW
+        - REFINHIGH
+        - RTDINLOW
+        - OVUV
         """
         faults = self._read_u8(_MAX31865_FAULTSTAT_REG)
         #pylint: disable=bad-whitespace
