@@ -10,6 +10,10 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
+.. image:: https://travis-ci.org/adafruit/Adafruit_CircuitPython_MAX31865.svg?branch=master
+    :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_MAX31865
+    :alt: Build Status
+
 CircuitPython module for the MAX31865 thermocouple amplifier.
 
 Dependencies
