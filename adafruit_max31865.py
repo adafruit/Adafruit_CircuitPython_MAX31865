@@ -53,7 +53,7 @@ import time
 
 from micropython import const
 
-import adafruit_bus_device.spi_device as spi_device
+import adafruit_bus_device.spi_device as spi_dev
 
 
 #pylint: disable=bad-whitespace
@@ -97,8 +97,8 @@ class MAX31865:
     def __init__(self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0, wires=2):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
-        self._device = spi_device.SPIDevice(spi, cs, baudrate=500000,
-                                            polarity=0, phase=1)
+        self._device = spi_dev.SPIDevice(spi, cs, baudrate=500000,
+                                         polarity=0, phase=1)
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
             raise ValueError('Wires must be a value of 2, 3, or 4!')
@@ -113,6 +113,7 @@ class MAX31865:
         self.bias = False
         self.auto_convert = False
 
+    # pylint: disable=no-member
     def _read_u8(self, address):
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as device:
@@ -135,6 +136,7 @@ class MAX31865:
             self._BUFFER[0] = (address | 0x80) & 0xFF
             self._BUFFER[1] = val & 0xFF
             device.write(self._BUFFER, end=2)
+    # pylint: enable=no-member
 
     @property
     def bias(self):
