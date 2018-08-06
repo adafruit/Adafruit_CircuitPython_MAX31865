@@ -53,7 +53,7 @@ import time
 
 from micropython import const
 
-import adafruit_bus_device.spi_device as spi_dev
+import adafruit_bus_device.spi_device as spi_device
 
 
 #pylint: disable=bad-whitespace
@@ -97,8 +97,8 @@ class MAX31865:
     def __init__(self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0, wires=2):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
-        self._device = spi_dev.SPIDevice(spi, cs, baudrate=500000,
-                                         polarity=0, phase=1)
+        self._device = spi_device.SPIDevice(spi, cs, baudrate=500000,
+                                            polarity=0, phase=1)
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
             raise ValueError('Wires must be a value of 2, 3, or 4!')
