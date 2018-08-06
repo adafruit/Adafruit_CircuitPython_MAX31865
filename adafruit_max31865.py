@@ -113,6 +113,7 @@ class MAX31865:
         self.bias = False
         self.auto_convert = False
 
+    # pylint: disable=no-member
     def _read_u8(self, address):
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as device:
@@ -135,6 +136,7 @@ class MAX31865:
             self._BUFFER[0] = (address | 0x80) & 0xFF
             self._BUFFER[1] = val & 0xFF
             device.write(self._BUFFER, end=2)
+    # pylint: enable=no-member
 
     @property
     def bias(self):
