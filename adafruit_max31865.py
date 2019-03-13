@@ -244,6 +244,11 @@ class MAX31865:
         temp = (math.sqrt(temp) + Z1) / Z4
         if temp >= 0:
             return temp
+
+        # For the following math to work, nominal RTD resistance must be normalized to 100 ohms
+        raw_reading /= self.rtd_nominal
+        raw_reading *= 100
+
         rpoly = raw_reading
         temp = -242.02
         temp += 2.2228 * rpoly
