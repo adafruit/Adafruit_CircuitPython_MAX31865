@@ -58,34 +58,34 @@ import adafruit_bus_device.spi_device as spi_device
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MAX31865.git"
 
-#pylint: disable=bad-whitespace
+# pylint: disable=bad-whitespace
 # Register and other constant values:
-_MAX31865_CONFIG_REG          = const(0x00)
-_MAX31865_CONFIG_BIAS         = const(0x80)
-_MAX31865_CONFIG_MODEAUTO     = const(0x40)
-_MAX31865_CONFIG_MODEOFF      = const(0x00)
-_MAX31865_CONFIG_1SHOT        = const(0x20)
-_MAX31865_CONFIG_3WIRE        = const(0x10)
-_MAX31865_CONFIG_24WIRE       = const(0x00)
-_MAX31865_CONFIG_FAULTSTAT    = const(0x02)
-_MAX31865_CONFIG_FILT50HZ     = const(0x01)
-_MAX31865_CONFIG_FILT60HZ     = const(0x00)
-_MAX31865_RTDMSB_REG          = const(0x01)
-_MAX31865_RTDLSB_REG          = const(0x02)
-_MAX31865_HFAULTMSB_REG       = const(0x03)
-_MAX31865_HFAULTLSB_REG       = const(0x04)
-_MAX31865_LFAULTMSB_REG       = const(0x05)
-_MAX31865_LFAULTLSB_REG       = const(0x06)
-_MAX31865_FAULTSTAT_REG       = const(0x07)
-_MAX31865_FAULT_HIGHTHRESH    = const(0x80)
-_MAX31865_FAULT_LOWTHRESH     = const(0x40)
-_MAX31865_FAULT_REFINLOW      = const(0x20)
-_MAX31865_FAULT_REFINHIGH     = const(0x10)
-_MAX31865_FAULT_RTDINLOW      = const(0x08)
-_MAX31865_FAULT_OVUV          = const(0x04)
+_MAX31865_CONFIG_REG = const(0x00)
+_MAX31865_CONFIG_BIAS = const(0x80)
+_MAX31865_CONFIG_MODEAUTO = const(0x40)
+_MAX31865_CONFIG_MODEOFF = const(0x00)
+_MAX31865_CONFIG_1SHOT = const(0x20)
+_MAX31865_CONFIG_3WIRE = const(0x10)
+_MAX31865_CONFIG_24WIRE = const(0x00)
+_MAX31865_CONFIG_FAULTSTAT = const(0x02)
+_MAX31865_CONFIG_FILT50HZ = const(0x01)
+_MAX31865_CONFIG_FILT60HZ = const(0x00)
+_MAX31865_RTDMSB_REG = const(0x01)
+_MAX31865_RTDLSB_REG = const(0x02)
+_MAX31865_HFAULTMSB_REG = const(0x03)
+_MAX31865_HFAULTLSB_REG = const(0x04)
+_MAX31865_LFAULTMSB_REG = const(0x05)
+_MAX31865_LFAULTLSB_REG = const(0x06)
+_MAX31865_FAULTSTAT_REG = const(0x07)
+_MAX31865_FAULT_HIGHTHRESH = const(0x80)
+_MAX31865_FAULT_LOWTHRESH = const(0x40)
+_MAX31865_FAULT_REFINLOW = const(0x20)
+_MAX31865_FAULT_REFINHIGH = const(0x10)
+_MAX31865_FAULT_RTDINLOW = const(0x08)
+_MAX31865_FAULT_OVUV = const(0x04)
 _RTD_A = 3.9083e-3
 _RTD_B = -5.775e-7
-#pylint: enable=bad-whitespace
+# pylint: enable=bad-whitespace
 
 
 class MAX31865:
@@ -99,11 +99,12 @@ class MAX31865:
     def __init__(self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0, wires=2):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
-        self._device = spi_device.SPIDevice(spi, cs, baudrate=500000,
-                                            polarity=0, phase=1)
+        self._device = spi_device.SPIDevice(
+            spi, cs, baudrate=500000, polarity=0, phase=1
+        )
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
-            raise ValueError('Wires must be a value of 2, 3, or 4!')
+            raise ValueError("Wires must be a value of 2, 3, or 4!")
         config = self._read_u8(_MAX31865_CONFIG_REG)
         if wires == 3:
             config |= _MAX31865_CONFIG_3WIRE
@@ -138,6 +139,7 @@ class MAX31865:
             self._BUFFER[0] = (address | 0x80) & 0xFF
             self._BUFFER[1] = val & 0xFF
             device.write(self._BUFFER, end=2)
+
     # pylint: enable=no-member
 
     @property
@@ -165,7 +167,7 @@ class MAX31865:
     def auto_convert(self, val):
         config = self._read_u8(_MAX31865_CONFIG_REG)
         if val:
-            config |= _MAX31865_CONFIG_MODEAUTO   # Enable auto convert.
+            config |= _MAX31865_CONFIG_MODEAUTO  # Enable auto convert.
         else:
             config &= ~_MAX31865_CONFIG_MODEAUTO  # Disable auto convert.
         self._write_u8(_MAX31865_CONFIG_REG, config)
@@ -184,14 +186,14 @@ class MAX31865:
         - OVUV
         """
         faults = self._read_u8(_MAX31865_FAULTSTAT_REG)
-        #pylint: disable=bad-whitespace
+        # pylint: disable=bad-whitespace
         highthresh = bool(faults & _MAX31865_FAULT_HIGHTHRESH)
-        lowthresh  = bool(faults & _MAX31865_FAULT_LOWTHRESH)
-        refinlow   = bool(faults & _MAX31865_FAULT_REFINLOW)
-        refinhigh  = bool(faults & _MAX31865_FAULT_REFINHIGH)
-        rtdinlow   = bool(faults & _MAX31865_FAULT_RTDINLOW)
-        ovuv       = bool(faults & _MAX31865_FAULT_OVUV)
-        #pylint: enable=bad-whitespace
+        lowthresh = bool(faults & _MAX31865_FAULT_LOWTHRESH)
+        refinlow = bool(faults & _MAX31865_FAULT_REFINLOW)
+        refinhigh = bool(faults & _MAX31865_FAULT_REFINHIGH)
+        rtdinlow = bool(faults & _MAX31865_FAULT_RTDINLOW)
+        ovuv = bool(faults & _MAX31865_FAULT_OVUV)
+        # pylint: enable=bad-whitespace
         return (highthresh, lowthresh, refinlow, refinhigh, rtdinlow, ovuv)
 
     def clear_faults(self):
