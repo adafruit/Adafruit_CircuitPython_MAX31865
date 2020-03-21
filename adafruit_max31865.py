@@ -110,7 +110,7 @@ class MAX31865:
             config |= _MAX31865_CONFIG_FILT50HZ
         else:
             config &= ~_MAX31865_CONFIG_FILT50HZ
-            
+
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
             raise ValueError("Wires must be a value of 2, 3, or 4!")
