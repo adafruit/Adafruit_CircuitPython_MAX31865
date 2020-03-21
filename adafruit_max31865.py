@@ -96,16 +96,25 @@ class MAX31865:
     # thread safe!
     _BUFFER = bytearray(3)
 
-    def __init__(self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0, wires=2):
+    def __init__(self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0, wires=2, filter=60):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
         self._device = spi_device.SPIDevice(
             spi, cs, baudrate=500000, polarity=0, phase=1
         )
+        # Set 50Hz or 60Hz filter.
+        if filter not in (50, 60):
+            raise ValueError("Filter must be a value of 50 or 60!")
+        config = self._read_u8(_MAX31865_CONFIG_REG)
+        if filter == 50:
+            config |= _MAX31865_CONFIG_FILT50HZ
+        else:
+            # 2 or 4 wire
+            config &= ~_MAX31865_CONFIG_FILT50HZ
+            
         # Set wire config register based on the number of wires specified.
         if wires not in (2, 3, 4):
             raise ValueError("Wires must be a value of 2, 3, or 4!")
-        config = self._read_u8(_MAX31865_CONFIG_REG)
         if wires == 3:
             config |= _MAX31865_CONFIG_3WIRE
         else:
