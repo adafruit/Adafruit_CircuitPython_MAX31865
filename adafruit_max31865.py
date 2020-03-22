@@ -96,10 +96,10 @@ class MAX31865:
     # thread safe!
     _BUFFER = bytearray(3)
 
-        def __init__(
-                    self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0,
-                    wires=2, filter_frequency=60
-                    ):
+    def __init__(
+                self, spi, cs, *, rtd_nominal=100, ref_resistor=430.0,
+                wires=2, filter_frequency=60
+                ):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
         self._device = spi_device.SPIDevice(
