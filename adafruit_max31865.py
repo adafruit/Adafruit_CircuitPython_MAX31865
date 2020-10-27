@@ -230,6 +230,7 @@ class MAX31865:
         self._write_u8(_MAX31865_CONFIG_REG, config)
         time.sleep(0.065)
         rtd = self._read_u16(_MAX31865_RTDMSB_REG)
+        self.bias = False
         # Remove fault bit.
         rtd >>= 1
         return rtd
