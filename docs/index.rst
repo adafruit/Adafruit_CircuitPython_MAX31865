@@ -23,6 +23,8 @@ Table of Contents
 .. toctree::
     :caption: Tutorials
 
+    Adafruit PT100 RTD Temperature Sensor Amplifier - MAX31865 Learning Guide <https://learn.adafruit.com/adafruit-max31865-rtd-pt100-amplifier>
+
 .. toctree::
     :caption: Related Products
 

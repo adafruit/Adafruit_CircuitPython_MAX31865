@@ -4,16 +4,13 @@
 # Simple demo of the MAX31865 thermocouple amplifier.
 # Will print the temperature every second.
 import time
-
 import board
-import busio
 import digitalio
-
 import adafruit_max31865
 
 
-# Initialize SPI bus and sensor.
-spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
+# Create sensor object, communicating over the board's default SPI bus
+spi = board.SPI()
 cs = digitalio.DigitalInOut(board.D5)  # Chip select of the MAX31865 board.
 sensor = adafruit_max31865.MAX31865(spi, cs)
 # Note you can optionally provide the thermocouple RTD nominal, the reference

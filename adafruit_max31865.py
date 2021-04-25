@@ -27,8 +27,9 @@ Implementation Notes
 
 **Software and Dependencies:**
 
-* Adafruit CircuitPython firmware for the ESP8622 and M0-based boards:
-  https://github.com/adafruit/circuitpython/releases
+* Adafruit CircuitPython firmware for the supported boards:
+  https://circuitpython.org/downloads
+
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 import math
@@ -70,7 +71,44 @@ _RTD_B = -5.775e-7
 
 
 class MAX31865:
-    """Driver for the MAX31865 thermocouple amplifier."""
+    """Driver for the MAX31865 thermocouple amplifier.
+
+    :param ~busio.SPI spi: SPI device
+    :param ~digitalio.DigitalInOut cs: Chip Select
+    :param int rtd_nominal: RTD nominal value. Defaults to :const:`100`
+    :param int ref_resistor: Reference resistance. Defaults to :const:`430.0`
+    :param int wires: Number of wires. Defaults to :const:`2`
+    :param int filter_frequency: . Filter frequency. Default to :const:`60`
+
+
+    **Quickstart: Importing and using the MAX31865**
+
+        Here is an example of using the :class:`MAX31865` class.
+        First you will need to import the libraries to use the sensor
+
+        .. code-block:: python
+
+            import board
+            from digitalio import DigitalInOut, Direction
+            import adafruit_max31865
+
+        Once this is done you can define your `board.SPI` object and define your sensor object
+
+        .. code-block:: python
+
+            spi = board.SPI()
+            cs = digitalio.DigitalInOut(board.D5)  # Chip select of the MAX31865 board.
+            sensor = adafruit_max31865.MAX31865(spi, cs)
+
+
+        Now you have access to the :attr:`temperature` attribute
+
+        .. code-block:: python
+
+            temperature = sensor.temperature
+
+
+    """
 
     # Class-level buffer for reading and writing data with the sensor.
     # This reduces memory allocations but means the code is not re-entrant or
@@ -172,7 +210,7 @@ class MAX31865:
 
     @property
     def fault(self):
-        """The fault state of the sensor.  Use ``clear_faults()`` to clear the
+        """The fault state of the sensor.  Use :meth:`clear_faults` to clear the
         fault state.  Returns a 6-tuple of boolean values which indicate if any
         faults are present:
 
