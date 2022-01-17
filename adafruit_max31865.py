@@ -204,8 +204,10 @@ class MAX31865:
         config = self._read_u8(_MAX31865_CONFIG_REG)
         if val:
             config |= _MAX31865_CONFIG_MODEAUTO  # Enable auto convert.
+            config |= _MAX31865_CONFIG_BIAS  # Enable bias.
         else:
             config &= ~_MAX31865_CONFIG_MODEAUTO  # Disable auto convert.
+            config &= ~_MAX31865_CONFIG_BIAS  # Disable bias.
         self._write_u8(_MAX31865_CONFIG_REG, config)
 
     @property
@@ -243,6 +245,11 @@ class MAX31865:
         nominal value of the resistance-to-digital conversion and some math.  If you just want
         temperature use the temperature property instead.
         """
+        if self.auto_convert:
+            rtd = self._read_u16(_MAX31865_RTDMSB_REG)
+            if not rtd & 1:
+                rtd >>= 1
+                return rtd
         self.clear_faults()
         self.bias = True
         time.sleep(0.01)
