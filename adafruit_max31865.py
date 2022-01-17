@@ -79,6 +79,7 @@ class MAX31865:
     :param int ref_resistor: Reference resistance. Defaults to :const:`430.0`
     :param int wires: Number of wires. Defaults to :const:`2`
     :param int filter_frequency: . Filter frequency. Default to :const:`60`
+    :param int polarity: set to 1 if controller clock idles high. Default 0.
 
 
     **Quickstart: Importing and using the MAX31865**
@@ -120,6 +121,7 @@ class MAX31865:
         spi,
         cs,
         *,
+        polarity=0,
         rtd_nominal=100,
         ref_resistor=430.0,
         wires=2,
@@ -128,7 +130,7 @@ class MAX31865:
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
         self._device = spi_device.SPIDevice(
-            spi, cs, baudrate=500000, polarity=0, phase=1
+            spi, cs, baudrate=500000, polarity=polarity, phase=1
         )
         # Set 50Hz or 60Hz filter.
         if filter_frequency not in (50, 60):
