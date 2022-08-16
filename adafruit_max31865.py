@@ -39,7 +39,7 @@ from micropython import const
 
 from adafruit_bus_device import spi_device
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MAX31865.git"
 
 # Register and other constant values:
