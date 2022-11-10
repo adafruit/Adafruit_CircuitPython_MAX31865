@@ -119,7 +119,7 @@ class MAX31865:
     def __init__(
         self,
         spi,
-        cs,
+        cs,  # pylint: disable=invalid-name
         *,
         polarity=0,
         rtd_nominal=100,
