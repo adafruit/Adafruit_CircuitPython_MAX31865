@@ -4,10 +4,11 @@
 # Simple demo of the MAX31865 thermocouple amplifier.
 # Will print the temperature every second.
 import time
+
 import board
 import digitalio
-import adafruit_max31865
 
+import adafruit_max31865
 
 # Create sensor object, communicating over the board's default SPI bus
 spi = board.SPI()
@@ -23,6 +24,6 @@ while True:
     # Read temperature.
     temp = sensor.temperature
     # Print the value.
-    print("Temperature: {0:0.3f}C".format(temp))
+    print(f"Temperature: {temp:0.3f}C")
     # Delay for a second.
     time.sleep(1.0)
