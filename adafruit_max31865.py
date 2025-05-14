@@ -32,12 +32,12 @@ Implementation Notes
 
 * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
+
 import math
 import time
 
-from micropython import const
-
 from adafruit_bus_device import spi_device
+from micropython import const
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_MAX31865.git"
@@ -119,21 +119,19 @@ class MAX31865:
     def __init__(
         self,
         spi,
-        cs,  # pylint: disable=invalid-name
+        cs,
         *,
         polarity=0,
         rtd_nominal=100,
         ref_resistor=430.0,
         wires=2,
-        filter_frequency=60
+        filter_frequency=60,
     ):
         self.rtd_nominal = rtd_nominal
         self.ref_resistor = ref_resistor
-        self._device = spi_device.SPIDevice(
-            spi, cs, baudrate=500000, polarity=polarity, phase=1
-        )
+        self._device = spi_device.SPIDevice(spi, cs, baudrate=500000, polarity=polarity, phase=1)
         # Set 50Hz or 60Hz filter.
-        if filter_frequency not in (50, 60):
+        if filter_frequency not in {50, 60}:
             raise ValueError("Filter_frequency must be a value of 50 or 60!")
         config = self._read_u8(_MAX31865_CONFIG_REG)
         if filter_frequency == 50:
@@ -142,7 +140,7 @@ class MAX31865:
             config &= ~_MAX31865_CONFIG_FILT50HZ
 
         # Set wire config register based on the number of wires specified.
-        if wires not in (2, 3, 4):
+        if wires not in {2, 3, 4}:
             raise ValueError("Wires must be a value of 2, 3, or 4!")
         if wires == 3:
             config |= _MAX31865_CONFIG_3WIRE
@@ -154,7 +152,6 @@ class MAX31865:
         self.bias = False
         self.auto_convert = False
 
-    # pylint: disable=no-member
     def _read_u8(self, address):
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as device:
@@ -177,8 +174,6 @@ class MAX31865:
             self._BUFFER[0] = (address | 0x80) & 0xFF
             self._BUFFER[1] = val & 0xFF
             device.write(self._BUFFER, end=2)
-
-    # pylint: enable=no-member
 
     @property
     def bias(self):
@@ -282,7 +277,6 @@ class MAX31865:
         # http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
         # To match the naming from the app note we tell lint to ignore the Z1-4
         # naming.
-        # pylint: disable=invalid-name
         raw_reading = self.resistance
         Z1 = -_RTD_A
         Z2 = _RTD_A * _RTD_A - (4 * _RTD_B)
